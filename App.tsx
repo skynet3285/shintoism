@@ -11,9 +11,13 @@ export default function App() {
     async function loadFonts() {
       await Font.loadAsync({
         DanjoboldRegular: require("./assets/fonts/Danjo-bold-Regular.otf"),
+        DOSIyagiBoldface: require("./assets/fonts/DOSIyagiBoldface.ttf"),
         DOSGothic: require("./assets/fonts/DOSGothic.ttf"),
         DOSPilgi: require("./assets/fonts/DOSPilgi.ttf"),
         DOSMyungjo: require("./assets/fonts/DOSMyungjo.ttf"),
+        DOSSaemmul: require("./assets/fonts/DOSSaemmul.ttf"),
+        MiraeroNormal: require("./assets/fonts/MiraeroNormal.ttf"),
+        Sam3KRFont: require("./assets/fonts/Sam3KRFont.ttf"),
       });
       setFontsLoaded(true);
     }
@@ -27,7 +31,8 @@ export default function App() {
 
   const customTextProps = {
     style: {
-      fontFamily: "DOSPilgi, DanjoboldRegular, DOSGothic, DOSMyungjo",
+      fontFamily:
+        "DOSPilgi, DOSIyagiBoldface, DanjoboldRegular, DOSGothic, DOSMyungjo, DOSSaemmul, MiraeroNormal, Sam3KRFont",
     },
   };
   setCustomText(customTextProps);

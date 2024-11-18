@@ -17,6 +17,7 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
   const { navigation } = props;
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView | null>(null);
+  const [isShutter, setIsShutter] = useState(false);
   const [count, setCount] = useState(3);
 
   const checkPermissions = async () => {
@@ -96,7 +97,14 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
             facing={"front"}
             animateShutter={true}
           >
-            <Text>{count}</Text>
+            <View className="w-full h-full justify-center">
+              <Text
+                style={{ fontFamily: "DanjoBoldRegular" }}
+                className="text-center text-[500px] text-red-800"
+              >
+                {count}
+              </Text>
+            </View>
           </CameraView>
         </View>
       </View>
