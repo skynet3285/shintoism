@@ -1,20 +1,36 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import * as Font from "expo-font";
+import { useEffect, useState } from "react";
+import { setCustomText } from "react-native-global-props";
+import StackNavigation from "./src/StackNavigation";
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+  const [fontsLoaded, setFontsLoaded] = useState(false);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  useEffect(() => {
+    async function loadFonts() {
+      await Font.loadAsync({
+        DanjoboldRegular: require("./assets/fonts/Danjo-bold-Regular.otf"),
+        DOSGothic: require("./assets/fonts/DOSGothic.ttf"),
+        DOSPilgi: require("./assets/fonts/DOSPilgi.ttf"),
+        DOSMyungjo: require("./assets/fonts/DOSMyungjo.ttf"),
+      });
+      setFontsLoaded(true);
+    }
+
+    loadFonts();
+  }, []);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  const customTextProps = {
+    style: {
+      fontFamily: "DOSPilgi, DanjoboldRegular, DOSGothic, DOSMyungjo",
+    },
+  };
+  setCustomText(customTextProps);
+
+  return <StackNavigation />;
+}
