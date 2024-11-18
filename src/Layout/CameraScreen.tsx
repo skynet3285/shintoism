@@ -18,7 +18,9 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView | null>(null);
   const [isShutter, setIsShutter] = useState(false);
-  const [count, setCount] = useState(3);
+  const shutterCount = 3;
+  const [count, setCount] = useState(shutterCount);
+  const [photo, setPhoto] = useState<string | undefined>("");
 
   const checkPermissions = async () => {
     if (!permission) return;
@@ -50,6 +52,12 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
     checkPermissions();
   }, [permission]);
 
+  useEffect(() => {
+    if (!photo) return;
+
+    console.log("Photo:", photo);
+  }, [photo]);
+
   console.log(permission);
 
   if (permission?.status !== "granted") {
@@ -63,19 +71,32 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
   }
 
   async function takePicture() {
+    if (isShutter) return;
+
+    setIsShutter(true);
     setCount(3);
 
     const interval = setInterval(() => {
-      if (count === 0) {
-        clearInterval(interval);
-        return;
-      }
-      setCount((prev) => prev - 1);
+      setCount((prev) => {
+        if (prev === 1) {
+          clearInterval(interval);
+        }
+        return prev - 1;
+      });
     }, 1000);
+
     setTimeout(async () => {
       if (cameraRef.current) {
-        await cameraRef.current.takePictureAsync();
+        try {
+          const photo = await cameraRef.current.takePictureAsync();
+          console.log("Photo taken:", photo);
+          setPhoto(photo?.uri);
+        } catch (error) {
+          console.error("Failed to take photo:", error);
+        }
       }
+
+      setIsShutter(false);
     }, 3000);
   }
 
@@ -97,14 +118,16 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
             facing={"front"}
             animateShutter={true}
           >
-            <View className="w-full h-full justify-center">
-              <Text
-                style={{ fontFamily: "DanjoBoldRegular" }}
-                className="text-center text-[500px] text-red-800"
-              >
-                {count}
-              </Text>
-            </View>
+            {isShutter && (
+              <View className="w-full h-full justify-center">
+                <Text
+                  style={{ fontFamily: "DanjoBoldRegular" }}
+                  className="text-center text-[500px] text-red-800"
+                >
+                  {count}
+                </Text>
+              </View>
+            )}
           </CameraView>
         </View>
       </View>
