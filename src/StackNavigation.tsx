@@ -1,28 +1,33 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, RouteProp } from "@react-navigation/native";
 import {
   createStackNavigator,
   StackNavigationOptions,
+  StackNavigationProp,
 } from "@react-navigation/stack";
-import { StackNavigationProp } from "@react-navigation/stack";
 import HomeScreen from "./Layout/HomeScreen";
-import CameraScreen from "./Layout/CameraScreen";
 import FrameSelectScreen from "./Layout/FrameSelectScreen";
+import CameraScreen from "./Layout/CameraScreen";
+import PhotoSelectScreen from "./Layout/PhotoSelectScreen";
 
-type RootStackParamList = {
+export type RootStackParamList = {
   Home: undefined;
-  Camera: undefined;
   FrameSelect: undefined;
+  Camera: undefined;
+  PhotoSelect: undefined;
 };
 
 export type HomeScreenNavigationProp = {
   navigation: StackNavigationProp<RootStackParamList, "Home">;
 };
+export type FrameScreenNavigationProp = {
+  navigation: StackNavigationProp<RootStackParamList, "FrameSelect">;
+};
 export type CameraScreenNavigationProp = {
   navigation: StackNavigationProp<RootStackParamList, "Camera">;
 };
-export type FrameSelectScreenNavigationProp = {
-  navigation: StackNavigationProp<RootStackParamList, "FrameSelect">;
+export type PhotoSelectScreenNavigationProp = {
+  navigation: StackNavigationProp<RootStackParamList, "PhotoSelect">;
 };
 
 /**
@@ -40,10 +45,12 @@ function StackNavigation(): React.JSX.Element {
       <Stack.Navigator initialRouteName="Home" screenOptions={option}>
         {/* 메인 페이지 */}
         <Stack.Screen name="Home" component={HomeScreen} />
-        {/* 카메라 페이지 */}
-        <Stack.Screen name="Camera" component={CameraScreen} />
         {/* 프레임 선택 페이지 */}
         <Stack.Screen name="FrameSelect" component={FrameSelectScreen} />
+        {/* 카메라 페이지 */}
+        <Stack.Screen name="Camera" component={CameraScreen} />
+        {/* 사진 선택 페이지 */}
+        <Stack.Screen name="PhotoSelect" component={PhotoSelectScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

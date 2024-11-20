@@ -3,6 +3,8 @@ import * as Font from "expo-font";
 import { useEffect, useState } from "react";
 import { setCustomText } from "react-native-global-props";
 import StackNavigation from "./src/StackNavigation";
+import { FrameProvider } from "./src/context/FrameContext";
+import { ImgsProvider } from "./src/context/ImgsContext";
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -37,5 +39,11 @@ export default function App() {
   };
   setCustomText(customTextProps);
 
-  return <StackNavigation />;
+  return (
+    <FrameProvider>
+      <ImgsProvider>
+        <StackNavigation />
+      </ImgsProvider>
+    </FrameProvider>
+  );
 }
