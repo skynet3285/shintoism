@@ -12,15 +12,22 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { CameraScreenNavigationProp } from "../StackNavigation";
 import SelectBtn from "../component/SelectBtn";
 import ShotFrame from "../../assets/camera/ShotFrame.png";
+import { useImgsContext } from "../context/ImgsContext";
+import * as ImageManipulator from "expo-image-manipulator";
+import HomeBtn from "../component/HomeBtn";
 
 export default function CameraScreen(props: CameraScreenNavigationProp) {
   const { navigation } = props;
+  const { imgs, setImgs } = useImgsContext();
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView | null>(null);
   const [isShutter, setIsShutter] = useState(false);
   const shutterCount = 3;
   const [count, setCount] = useState(shutterCount);
   const [photo, setPhoto] = useState<string | undefined>("");
+  const [imgCount, setImgCount] = useState(0);
+
+  const maxPhotos = 6;
 
   const checkPermissions = async () => {
     if (!permission) return;
@@ -53,12 +60,25 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
   }, [permission]);
 
   useEffect(() => {
+    if (photo) {
+      setImgs((prevImgs) => [...prevImgs, photo]);
+      setImgCount((prevCount) => prevCount + 1);
+    }
+  }, [photo]);
+
+  useEffect(() => {
+    if (imgCount === maxPhotos) {
+      setTimeout(() => {
+        navigation.navigate("PhotoSelect");
+      }, 500);
+    }
+  }, [imgCount]);
+
+  useEffect(() => {
     if (!photo) return;
 
     console.log("Photo:", photo);
   }, [photo]);
-
-  console.log(permission);
 
   if (permission?.status !== "granted") {
     return (
@@ -71,10 +91,10 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
   }
 
   async function takePicture() {
-    if (isShutter) return;
+    if (isShutter || imgCount >= maxPhotos) return;
 
     setIsShutter(true);
-    setCount(3);
+    setCount(shutterCount);
 
     const interval = setInterval(() => {
       setCount((prev) => {
@@ -88,11 +108,25 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
     setTimeout(async () => {
       if (cameraRef.current) {
         try {
-          const photo = await cameraRef.current.takePictureAsync();
-          console.log("Photo taken:", photo);
-          setPhoto(photo?.uri);
+          const photoResult = await cameraRef.current.takePictureAsync();
+
+          if (photoResult?.uri) {
+            // 좌우 반전 처리
+            const manipulatedPhoto = await ImageManipulator.manipulateAsync(
+              photoResult.uri,
+              [{ flip: ImageManipulator.FlipType.Horizontal }],
+              {
+                compress: 1,
+                format: ImageManipulator.SaveFormat.JPEG,
+              }
+            );
+
+            setPhoto(manipulatedPhoto.uri);
+          } else {
+            console.error("사진 촬영에 실패했습니다.");
+          }
         } catch (error) {
-          console.error("Failed to take photo:", error);
+          console.error("사진 촬영 및 반전 실패:", error);
         }
       }
 
@@ -101,17 +135,19 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
   }
 
   return (
-    <SafeAreaView>
-      <View className="absolute bg-[#19171c] w-full justify-center items-center">
+    <SafeAreaView className="flex-1 w-screen h-screen bg-[#19171c] justify-center items-center">
+      <View className="absolute top-[100px] left-[-50px]">
+        <HomeBtn title="" />
+      </View>
+
+      <View className="flex-1 w-full justify-center items-center ">
         <Image
           source={ShotFrame}
-          className="bottom-[184px] w-[80%] h-auto"
+          className="top-[420px] w-[720px] h-auto"
           resizeMode="contain"
         />
-      </View>
-      <View className="TopView w-full h-[90px]"></View>
-      <View className="CameraBox w-full justify-center items-center ">
-        <View className="CameraBox flex w-[72%] h-[84%]">
+
+        <View className="CameraBox flex w-[650px] h-[866px] bottom-[816px]">
           <CameraView
             ref={cameraRef}
             style={{ flex: 1 }}
@@ -122,7 +158,7 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
               <View className="w-full h-full justify-center">
                 <Text
                   style={{ fontFamily: "DanjoBoldRegular" }}
-                  className="text-center text-[500px] text-red-800"
+                  className="text-center text-[400px] text-red-800"
                 >
                   {count}
                 </Text>
@@ -131,7 +167,14 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
           </CameraView>
         </View>
       </View>
-      <View className="ShutterBox w-full items-center">
+
+      <View className="w-full bottom-[70px] items-center ">
+        <Text
+          style={{ fontFamily: "DOSMyungjo" }}
+          className="text-[#fff] text-[50px] text-center mb-3"
+        >
+          {imgCount} | {maxPhotos}
+        </Text>
         <SelectBtn
           title="사진촬영"
           onPress={() => {
@@ -139,7 +182,6 @@ export default function CameraScreen(props: CameraScreenNavigationProp) {
           }}
         />
       </View>
-      <View />
     </SafeAreaView>
   );
 }
