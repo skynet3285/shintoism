@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { TouchableOpacity, Text, Image } from "react-native";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import home from "../../assets/logo/home.png";
@@ -12,13 +12,16 @@ interface HomeBtnProps {
 
 export default function HomeBtn({ title }: HomeBtnProps) {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { frameIndex, setFrameIndex } = useFrameContext();
-  const { imgs, setImgs } = useImgsContext();
+  const { setFrameIndex } = useFrameContext();
+  const { setImgs } = useImgsContext();
 
   const goHome = () => {
-    navigation.navigate("Home");
     setFrameIndex(0);
     setImgs([]);
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Home" }],
+    });
   };
 
   return (

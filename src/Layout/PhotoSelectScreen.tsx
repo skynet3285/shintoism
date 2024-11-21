@@ -148,7 +148,6 @@ export default function PhotoSelectScreen(
       extension || "png"
     }`;
 
-    // FormData 생성
     const formData = new FormData();
     formData.append("image", {
       uri: imagePath,
@@ -174,7 +173,7 @@ export default function PhotoSelectScreen(
     console.log("QR URL 설정 완료:", qrCodeUrl);
   };
 
-  const captureAndUpload = async () => {
+  const captureAndUpload = async (retryCount = 0) => {
     try {
       if (!viewRef.current?.capture) {
         console.error("Capture method is unavailable.");
@@ -200,9 +199,17 @@ export default function PhotoSelectScreen(
       await MediaLibrary.saveToLibraryAsync(uri);
 
       await upload(uri);
+
+      console.log("Capture and upload succeeded!");
     } catch (error) {
-      console.error("Error load image:", error);
-      Alert.alert("Error", "Failed to save image.");
+      console.error((error as Error).name, (error as Error).message);
+
+      if (retryCount < 2) {
+        console.log(`Retrying... (${retryCount + 1})`);
+        await captureAndUpload(retryCount + 1);
+      } else {
+        Alert.alert("서버와 통신 오류", "!!관리자에게 문의해주세요!!");
+      }
     }
   };
 
